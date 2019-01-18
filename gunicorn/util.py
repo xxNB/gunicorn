@@ -16,6 +16,7 @@ import random
 import re
 import socket
 import sys
+import ssl
 import textwrap
 import time
 import traceback
@@ -600,3 +601,32 @@ def bytes_to_str(b):
 
 def unquote_to_wsgi_str(string):
     return urllib.parse.unquote_to_bytes(string).decode('latin-1')
+
+_SSL_CONTEXT_KEYWORDS = frozenset(
+    ["ssl_version", "certfile", "keyfile", "cert_reqs", "ca_certs", "ciphers"]
+)
+
+
+def ssl_options_to_context(ssl_options):
+    if isinstance(ssl_options, ssl.SSLContext):
+        return ssl_options
+    assert all(k in _SSL_CONTEXT_KEYWORDS for k in ssl_options), ssl_options
+    context = ssl.SSLContext(ssl_options.get("ssl_version", ssl.PROTOCOL_SSLv23))
+    if "certfile" in ssl_options:
+        context.load_cert_chain(
+            ssl_options["certfile"], ssl_options.get("keyfile", None)
+        )
+    if "cert_reqs" in ssl_options:
+        context.verify_mode = ssl_options["cert_reqs"]
+    if "ca_certs" in ssl_options:
+        context.load_verify_locations(ssl_options["ca_certs"])
+    if "ciphers" in ssl_options:
+        context.set_ciphers(ssl_options["ciphers"])
+    if hasattr(ssl, "OP_NO_COMPRESSION"):
+        context.options |= ssl.OP_NO_COMPRESSION
+    return context
+
+
+def ssl_wrap_socket(socket, ssl_options, **kwargs):
+    context = ssl_options_to_context(ssl_options)
+    return context.wrap_socket(socket, **kwargs)

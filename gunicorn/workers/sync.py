@@ -126,8 +126,7 @@ class SyncWorker(base.Worker):
         req = None
         try:
             if self.cfg.is_ssl:
-                client = ssl.wrap_socket(client, server_side=True,
-                    **self.cfg.ssl_options)
+                client = util.ssl_wrap_socket(client, self.cfg.ssl_options, server_side=True)
 
             parser = http.RequestParser(self.cfg, client)
             req = next(parser)
