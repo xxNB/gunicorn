@@ -93,3 +93,4 @@ def test_to_bytestring():
 ])
 def test_split_request_uri(test_input, expected):
     assert util.split_request_uri(test_input) == expected
+

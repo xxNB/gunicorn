@@ -1934,6 +1934,17 @@ class CACerts(Setting):
     CA certificates file
     """
 
+class DHparams(Setting):
+    name = "dh_params"
+    section = "SSL"
+    cli = ["--dh-params"]
+    meta = "FILE"
+    validator = validate_string
+    default = None
+    desc = """\
+        DH parms file
+        """
+
 class SuppressRaggedEOFs(Setting):
     name = "suppress_ragged_eofs"
     section = "SSL"

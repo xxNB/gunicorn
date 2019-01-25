@@ -622,6 +622,8 @@ def ssl_options_to_context(ssl_options):
         context.load_verify_locations(ssl_options["ca_certs"])
     if "ciphers" in ssl_options:
         context.set_ciphers(ssl_options["ciphers"])
+    if "dh_params" in ssl_options:
+        context.load_dh_params(ssl_options["dh_params"])
     if hasattr(ssl, "OP_NO_COMPRESSION"):
         context.options |= ssl.OP_NO_COMPRESSION
     return context
